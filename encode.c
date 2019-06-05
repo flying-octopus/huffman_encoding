@@ -84,7 +84,7 @@ char PrioQueueEmpty(PrioQueue* prioqueue) {
 }
 
 char PrioQueueInsertNode(Node* new_node, PrioQueue* prioqueue) {
-	if(prioqueue->size = MAX_CAPACITY) {
+	if(prioqueue->size == MAX_CAPACITY) {
 		printf("Błąd, kolejka jest pełna.\n");
 		return 0;
 	}
@@ -122,6 +122,17 @@ Node* CreateNode(int count) {
 	return newnode;
 }
 
+char CheckCount(int* count, Node* HuffmanTreeRoot) {
+	int i, all;
+	all = 0;
+	for(i = 0; i < 256; i++)
+		all = count[i] + all;
+	if(all == HuffmanTreeRoot->count)
+		return 1;
+	else
+		return 0;
+} /* Debugging purpose only, checks if count of characters in root of Huffman's tree is equal to count of characters returned by function Count Chars */
+
 void HuffmanEncode(char* filename, int* count) {
 	int i;
 	PrioQueue* encode_prioqueue;
@@ -149,7 +160,12 @@ void HuffmanEncode(char* filename, int* count) {
 	/* Step 3 of algorithm */
 	Node* HuffmanTreeRoot;
 	HuffmanTreeRoot = PrioQueueRemoveNode(encode_prioqueue);
-	/* End of step 3*/
+	/* End of step 3 - now HuffmanTreeRoot is a root to our huffman tree*/
+	/*if(CheckCount(count, HuffmanTreeRoot) == 1)
+		printf("Wszystko OK.\n");
+	else
+		printf("Coś jest nie tak.\n"); */ /* Debugging purpose only! */
+	exit(10);
 }
 
 int main(int argc, char** argv) {
@@ -159,7 +175,6 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	else {
-		CountChars(argv[1], count);
-		PrintChars(count);
+		HuffmanEncode(argv[1], count);
 	}
 }
