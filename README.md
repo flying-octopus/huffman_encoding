@@ -11,7 +11,7 @@ The simplest construction algorithm uses a priority queue where the node with lo
 
 1. Create a leaf node for each symbol and add it to the priority queue.
 1. While there is more than one node in the queue:
-	2. Remove the two nodes of highest priority (lowest probability) from the queue
-	2. Create a new internal node with these two nodes as children and with probability equal to the sum of the two nodes' probabilities.
-	2. Add the new node to the queue.
+	1. Remove the two nodes of highest priority (lowest probability) from the queue
+	1. Create a new internal node with these two nodes as children and with probability equal to the sum of the two nodes' probabilities.
+	1. Add the new node to the queue.
 1. The remaining node is the root node and the tree is complete.
