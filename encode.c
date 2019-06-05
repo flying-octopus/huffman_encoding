@@ -165,7 +165,6 @@ void HuffmanEncode(char* filename, int* count) {
 		printf("Wszystko OK.\n");
 	else
 		printf("Coś jest nie tak.\n"); */ /* Debugging purpose only! */
-	exit(10);
 }
 
 int main(int argc, char** argv) {
