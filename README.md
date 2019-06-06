@@ -15,3 +15,10 @@ The simplest construction algorithm uses a priority queue where the node with lo
 	1. Create a new internal node with these two nodes as children and with probability equal to the sum of the two nodes' probabilities.
 	1. Add the new node to the queue.
 1. The remaining node is the root node and the tree is complete.
+
+###Manual
+Options:
+	-c : Program will compress file given as a second argument. Compressed file's name is going to be a third argument, example:
+	`./huffman -c test.txt test` will compress file `test.txt`, a compressed file will be called `test`.
+	-d : Program will decompress file given as a second argument. Decompressed file's name is going to be a third argument, example:
+	`./huffman -d test test.txt` will decompress file `test`, a decompressed fille will be called `test.txt`.

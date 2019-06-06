@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "encode.h"
-#define MAX_CAPACITY 2000
+#define MAX_CAPACITY 2000 /* Max capacity of priority queue used to build a Huffman's tre */
+/*========================================*/
+FILE* f;
+unsigned char bufor, mask;
+/*========================================*/
 
 char CountChars(char* filename, int* count) {
 	FILE* file;
@@ -133,11 +137,10 @@ char CheckCount(int* count, Node* HuffmanTreeRoot) {
 		return 0;
 } /* Debugging purpose only, checks if count of characters in root of Huffman's tree is equal to count of characters returned by function Count Chars */
 
-void HuffmanEncode(char* filename, int* count) {
+Node* CreateHuffmanTree(int* count) {
 	int i;
 	PrioQueue* encode_prioqueue;
 	Node *leaf1, *leaf2, *node;
-	CountChars(filename, count);
 	encode_prioqueue = InitPrioQueue();
 	/* Step 1 of algorithm */
 	for(i = 0; i < 256; i++)
@@ -165,15 +168,96 @@ void HuffmanEncode(char* filename, int* count) {
 		printf("Wszystko OK.\n");
 	else
 		printf("Coś jest nie tak.\n"); */ /* Debugging purpose only! */
+	return HuffmanTreeRoot;
+} /* HuffmanEncode takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
+
+void FindBinaryCodes(Node* root, int level, unsigned int binary_code, Code* binary_codes) {
+	if(root->left == NULL) {
+		binary_codes[root->character].code = binary_code;
+		binary_codes[root->character].lenght = level;
+	}
+	else {
+		binary_code &= ~(1 << level);
+		FindBinaryCodes(root->left, level + 1, binary_code, binary_codes);
+		binary_code |= 1 << level;
+		FindBinaryCodes(root->right, level + 1, binary_code, binary_codes);
+	}
+} /* FindBinaryCodes searches through entire Huffman's tree recursivly starting by it's root given as an argument. It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character as well as the lenght of the code (lengts is needed since codes in this method ar written backwards and when outputted to a file need to be written in a backward direction -- we need lenght of a code for that). First induction of this function should be with level == 0, as this level is a level of a binary tree and starting with a root level is 0 */
+
+/*========================================*/
+/* Functions below deal with writing each bits */
+/*========================================*/
+
+void BeginWriting(char* filename) {
+	f = fopen(filename, "wb+");
+	mask = 1;
+	bufor = 0; /* Set all 8 bits to 0 */
+} /* BeginWriting */
+
+void WriteBit(char bit) {
+	if(bit)
+		bufor += mask;
+	mask *= 2;
+	if(!mask) {
+		/* mask == 0 if there  is bits surplus -- after writing 8 bits (1 byte) */
+		/* fprintf(f, "%d", bit); */
+		fwrite(&bufor, 1, 1, f);
+		bufor = 0;
+		mask = 1;
+	}
+} /* WriteBit */
+
+void FinishWriting(void) {
+	if(mask != 1)
+		/* fprintf(f, "%d", 1); */
+		fwrite(&bufor, 1, 1, f);
+	fclose(f);
+} /* FinishWriting */
+/*========================================*/
+/* End of functions concnerning bits */
+/*========================================*/
+
+void Encode(char* to_encode_filename, char* encoded_filename) {
+	int count[256] = {0}; /* array of occourance of each character, it has 256 spaces since there are 256 characters */
+	Code codes[256]; /* array of binary codes for each character */
+	Node* huffman_root; /* pointer to the root of Huffman's tree */
+	int i;
+	char read_char;
+	FILE* to_encode;
+	CountChars(to_encode_filename, count);
+	huffman_root = CreateHuffmanTree(count);
+	FindBinaryCodes(huffman_root, 0, NULL, codes);
+
+	to_encode = fopen(to_encode_filename, "r");
+	BeginWriting(encoded_filename);
+	for(i = 0; i < 256; i++)
+		/* fprintf(f, "%d\n", count[i]); */
+		fwrite((const void*) & count[i], sizeof(int), 1, f);
+	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
+	while((read_char = fgetc(to_encode))) {
+		if(read_char == EOF)
+			break;
+		else
+			for(i = 0; i < codes[read_char].lenght; i++)
+				WriteBit((codes[read_char].code & 1 << i) != 0);
+		/* This for loop is where we needed our code's lenght. Since we need to write them down backwards */
+	}
+	FinishWriting();
+	fclose(to_encode);
+} /* Encode takes a filename and makes a compressed version of that file called "encoded" */
+
+void Decode(char* to_decode_filename, char* decoded_filename) {
+	printf("lol\n");
 }
 
 int main(int argc, char** argv) {
-	int count[256] = {0};
-	if(argc != 2) {
-		printf("Podaj nazwe pliku.\n");
+	if(argc != 4) {
 		exit(1);
 	}
-	else {
-		HuffmanEncode(argv[1], count);
-	}
+	else if(strcmp("-c", argv[1]) == 0)
+		Encode(argv[2], argv[3]);
+	else if(strcmp("-d", argv[1]) == 0)
+		Decode(argv[2], argv[3]);
+	else
+		exit(2);
 }
