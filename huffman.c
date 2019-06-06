@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "encode.h"
+#include "huffman.h"
 #define MAX_CAPACITY 2000 /* Max capacity of priority queue used to build a Huffman's tre */
 /*========================================*/
 FILE* f;
@@ -13,7 +13,7 @@ char CountChars(char* filename, int* count) {
 
 	file = fopen(filename, "r"); /* Read file, name is function's argument */
 	if(!file) {
-		fprintf(stderr, "Nie udało się otworzyć pliku: \"%s\"\n", filename);
+		fprintf(stderr, "Couldn't open file or it doesn't exist: \"%s\"\n", filename);
 		return 0;
 	} /* If file doesn't exist or we don't have the permission to open it (error management) */
 
@@ -34,9 +34,9 @@ void PrintChars(int* count) {
 	for(i = 0; i < 256; i++) {
 		if(count[i] > 0) {
 			if(i == '\n')
-				printf("char \'\\n\': %d razy\n", count[i]);
+				printf("char \'\\n\': %d times\n", count[i]);
 			else
-				printf("char \'%c\': %d razy\n", i, count[i]);
+				printf("char \'%c\': %d times\n", i, count[i]);
 		}
 	}
 } /* Debugging purpose only */
@@ -89,7 +89,7 @@ char PrioQueueEmpty(PrioQueue* prioqueue) {
 
 char PrioQueueInsertNode(Node* new_node, PrioQueue* prioqueue) {
 	if(prioqueue->size == MAX_CAPACITY) {
-		printf("Błąd, kolejka jest pełna.\n");
+		printf("Error, queue is full.\n");
 		return 0;
 	}
 	prioqueue->array[prioqueue->size] = new_node;
@@ -99,7 +99,7 @@ char PrioQueueInsertNode(Node* new_node, PrioQueue* prioqueue) {
 
 Node* PrioQueueRemoveNode(PrioQueue* prioqueue) {
 	if(PrioQueueEmpty(prioqueue)) {
-		printf("Błąd, kolejka jest pusta nie ma co usuwać.\n");
+		printf("Error, queue is empty, there is nothing to remove.\n");
 		return NULL;
 	}
 	else {
@@ -165,9 +165,9 @@ Node* CreateHuffmanTree(int* count) {
 	HuffmanTreeRoot = PrioQueueRemoveNode(encode_prioqueue);
 	/* End of step 3 - now HuffmanTreeRoot is a root to our huffman tree*/
 	/*if(CheckCount(count, HuffmanTreeRoot) == 1)
-		printf("Wszystko OK.\n");
+		printf("Everything's OK.\n");
 	else
-		printf("Coś jest nie tak.\n"); */ /* Debugging purpose only! */
+		printf("Something's wrong...\n"); */ /* Debugging purpose only! */
 	return HuffmanTreeRoot;
 } /* HuffmanEncode takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
 
@@ -248,6 +248,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 
 void Decode(char* to_decode_filename, char* decoded_filename) {
 	printf("lol\n");
+	//HERE IS WHERE YOU HAVE FINISHED SO FAR
 }
 
 int main(int argc, char** argv) {
