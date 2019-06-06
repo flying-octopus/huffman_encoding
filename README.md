@@ -17,7 +17,7 @@ The simplest construction algorithm uses a priority queue where the node with lo
 1. The remaining node is the root node and the tree is complete.
 
 ### Installation
-`make`
+`make` while in program's directory.
 
 ### Manual
 `-c` : Program will compress file given as a second argument. Compressed file's name is going to be a third argument, example:
