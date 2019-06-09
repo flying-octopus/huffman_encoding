@@ -27,7 +27,7 @@ Node* PrioQueueRemoveNode(PrioQueue* prioqueue);
 Node* CreateNode(int count);
 char CheckCount(int* count, Node* HuffmanTreeRoot);
 Node* CreateHuffmanTree(int* count);
-void FindBinaryCodes(Node* root, int level, unsigned int binary_code, Code* binary_codes);
+void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* binary_codes);
 void BeginWriting(char* filename);
 void WriteBit(char bit);
 void FinishWriting(void);

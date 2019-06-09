@@ -203,7 +203,7 @@ void WriteBit(char bit) {
 	mask *= 2;
 	if(!mask) {
 		/* mask == 0 if there  is bits surplus -- after writing 8 bits (1 byte) */
-		//fprintf(f, "%d", bit); 
+		//fprintf(f, "%d", bit);
 		fwrite(&bufor, 1, 1, f);
 		bufor = 0;
 		mask = 1;
