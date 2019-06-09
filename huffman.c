@@ -263,7 +263,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	BeginWriting(encoded_filename);
 	PrintChars(count);
 	for(i = 0; i < 256; i++)
-//		fprintf(f, "%d\n", count[i]); 
+//		fprintf(f, "%d\n", count[i]);
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
 	while((read_char = fgetc(to_encode))) {
