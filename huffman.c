@@ -174,18 +174,18 @@ Node* CreateHuffmanTree(int* count) {
 	return HuffmanTreeRoot;
 } /* HuffmanEncode takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
 
-void FindBinaryCodes(Node* root, int level, unsigned int binary_code, Code* binary_codes) {
-	if(root->left == NULL) {
-		binary_codes[root->character].code = binary_code;
-		binary_codes[root->character].lenght = level;
+void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* binary_codes) {
+	if(vertex->left == NULL) {
+		binary_codes[vertex->character].code = binary_code;
+		binary_codes[vertex->character].lenght = level;
 	}
 	else {
 		binary_code &= ~(1 << level);
-		FindBinaryCodes(root->left, level + 1, binary_code, binary_codes);
+		FindBinaryCodes(vertex->left, level + 1, binary_code, binary_codes);
 		binary_code |= 1 << level;
-		FindBinaryCodes(root->right, level + 1, binary_code, binary_codes);
+		FindBinaryCodes(vertex->right, level + 1, binary_code, binary_codes);
 	}
-} /* FindBinaryCodes searches through entire Huffman's tree recursivly starting by it's root given as an argument. It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character as well as the lenght of the code (lengts is needed since codes in this method ar written backwards and when outputted to a file need to be written in a backward direction -- we need lenght of a code for that). First induction of this function should be with level == 0, as this level is a level of a binary tree and starting with a root level is 0 */
+} /* FindBinaryCodes searches through entire Huffman's tree recursivly starting by it's root given as an argument. It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character as well as the lenght of the code (lengt is needed since codes in this method ar written backwards and when outputted to a file need to be written in a backward direction -- we need lenght of a code for that). First induction of this function should be with level == 0, as this level is a level of a binary tree and starting with a root level is 0 */
 
 /*========================================*/
 /* Functions below deal with writing each bits */
@@ -203,7 +203,7 @@ void WriteBit(char bit) {
 	mask *= 2;
 	if(!mask) {
 		/* mask == 0 if there  is bits surplus -- after writing 8 bits (1 byte) */
-		/* fprintf(f, "%d", bit); */
+		//fprintf(f, "%d", bit); 
 		fwrite(&bufor, 1, 1, f);
 		bufor = 0;
 		mask = 1;
@@ -263,7 +263,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	BeginWriting(encoded_filename);
 	PrintChars(count);
 	for(i = 0; i < 256; i++)
-		/* fprintf(f, "%d\n", count[i]); */
+//		fprintf(f, "%d\n", count[i]); 
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
 	while((read_char = fgetc(to_encode))) {
