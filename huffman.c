@@ -4,8 +4,11 @@
 #include "huffman.h"
 #define MAX_CAPACITY 2000 /* Max capacity of priority queue used to build a Huffman's tre */
 /*========================================*/
+/* Following global variables are used for reading/writing bits */
+/*========================================*/
 FILE* f;
 unsigned char bufor, mask;
+char end; /* variable end is needed for reading bits in binary file */
 /*========================================*/
 
 char CountChars(char* filename, int* count) {
@@ -124,7 +127,7 @@ Node* CreateNode(int count) {
 	newnode->left = NULL;
 	newnode->right = NULL;
 	return newnode;
-}
+} /* CreateNode does all the assigning to create a node -- a vertex of Huffman's tree */
 
 char CheckCount(int* count, Node* HuffmanTreeRoot) {
 	int i, all;
@@ -213,6 +216,34 @@ void FinishWriting(void) {
 		fwrite(&bufor, 1, 1, f);
 	fclose(f);
 } /* FinishWriting */
+
+void BeginReading(char* filename) {
+	f = fopen(filename, "r+");
+	if(!f) {
+		fprintf(stderr, "Couldn't open file or it doesn't exist: \"%s\"\n", filename);
+		exit(10);
+	}
+	mask = end = 0;
+} /* BeginReading */
+
+char ReadBit(void) {
+	char bit;
+	if(!mask) {
+		if(!fread(&bufor, 1, 1, f))
+			end = 1;
+		else
+			mask = 1;
+	}
+	bit = bufor & 1;
+	bufor /= 2;
+	mask *= 2;
+	return bit;
+} /* ReadBit */
+
+void FinishReading(void) {
+	fclose(f);
+} /* FinishReading */
+
 /*========================================*/
 /* End of functions concnerning bits */
 /*========================================*/
@@ -230,6 +261,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 
 	to_encode = fopen(to_encode_filename, "r");
 	BeginWriting(encoded_filename);
+	PrintChars(count);
 	for(i = 0; i < 256; i++)
 		/* fprintf(f, "%d\n", count[i]); */
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
@@ -240,20 +272,61 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 		else
 			for(i = 0; i < codes[read_char].lenght; i++)
 				WriteBit((codes[read_char].code & 1 << i) != 0);
-		/* This for loop is where we needed our code's lenght. Since we need to write them down backwards */
+		/* This loop handles writing single bits of each character to binary file, this is where we needed our code's lenght. Since we need to write them down backwards */
 	}
 	FinishWriting();
 	fclose(to_encode);
+	exit(1);
 } /* Encode takes a filename and makes a compressed version of that file called "encoded" */
 
 void Decode(char* to_decode_filename, char* decoded_filename) {
-	printf("lol\n");
-	//HERE IS WHERE YOU HAVE FINISHED SO FAR
-}
+	int count[256] = {0}; /* similarly to Encode */
+	Node *huffman_root, *helper; /* similarly to Encode helper is here just for a while loop since after we find leaf of Huffman's tree we need to go back to the root and repeat the process */
+	int i;
+	char read_bit;
+	FILE* decoded;
+
+	BeginReading(to_decode_filename);
+	for(i = 0; i < 256; i++) {
+		if(fread(&count[i], sizeof(int), 1, f) != 1)
+        fprintf(stderr, "error writing to binary file\n");
+		else {
+			if(count[i] != 0) {
+				if(i == '\n')
+					printf("char \'\\n\': %d times\n", count[i]);
+				else
+					printf("char \'%c\': %d times\n", i, count[i]);
+			}
+		}
+	} /* This loop reads first 1024 bytes represetning 256 integers that represent occurrence of each of 256 characters */
+	huffman_root = CreateHuffmanTree(count);
+	helper = huffman_root;
+	decoded = fopen(decoded_filename, "wb+");
+	while(end != 1) {
+		read_bit = ReadBit();
+		if(helper->left == NULL) {
+			fputc(helper->character, decoded);
+			printf("%c", helper->character);
+			helper = huffman_root;
+		}
+		else if(helper->left != NULL) {
+			if(read_bit == 1)
+				helper = helper->right;
+			else if(read_bit == 0)
+				helper = helper->left;
+		}
+	}
+	/* This while loop reads encoded file bit by bit and if bit is a 0 we move left on Huffman's tree and if it's 1 we move right until a node is missing left(right, any will work since this is Huffman's tree), then it means we are in a leaf and we output character to decoded file and reset helper to point a the root of the Huffman's tree again and we do that until we encounter end of binary file */
+	printf("\n");
+	fclose(decoded);
+	FinishReading();
+	exit(1);
+	/* Closing the files and exiting program after finished work */
+} /* Decode decodes compressed file with "to_decode_filename" name and outputs decoded characters to file "decoded_filename" */
 
 int main(int argc, char** argv) {
 	if(argc != 4) {
-		exit(1);
+		exit(0);
 	}
 	else if(strcmp("-c", argv[1]) == 0)
 		Encode(argv[2], argv[3]);
