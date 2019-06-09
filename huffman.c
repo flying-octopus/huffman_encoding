@@ -42,7 +42,7 @@ void PrintChars(int* count) {
 				printf("char \'%c\': %d times\n", i, count[i]);
 		}
 	}
-} /* Debugging purpose only */
+} /* Debugging purpose only, it will print all the occurrences of characters from read file*/
 
 /*========================================*/
 /* Everything in the brackets is related to Priority Queue */
@@ -170,7 +170,7 @@ Node* CreateHuffmanTree(int* count) {
 	/*if(CheckCount(count, HuffmanTreeRoot) == 1)
 		printf("Everything's OK.\n");
 	else
-		printf("Something's wrong...\n"); */ /* Debugging purpose only! */
+		printf("Something's wrong...\n"); */ /* Debugging purpose only! Checks if created Huffman's tree is valid */
 	return HuffmanTreeRoot;
 } /* HuffmanEncode takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
 
@@ -203,7 +203,7 @@ void WriteBit(char bit) {
 	mask *= 2;
 	if(!mask) {
 		/* mask == 0 if there  is bits surplus -- after writing 8 bits (1 byte) */
-		//fprintf(f, "%d", bit);
+		//fprintf(f, "%d", bit); /* Debugging purpose only, it will print int represetning bit (1 or 0) instead of actual bit to binary file */
 		fwrite(&bufor, 1, 1, f);
 		bufor = 0;
 		mask = 1;
@@ -212,7 +212,7 @@ void WriteBit(char bit) {
 
 void FinishWriting(void) {
 	if(mask != 1)
-		/* fprintf(f, "%d", 1); */
+		/* fprintf(f, "%d", 1); */ /* Debugging purpose only */
 		fwrite(&bufor, 1, 1, f);
 	fclose(f);
 } /* FinishWriting */
@@ -261,9 +261,9 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 
 	to_encode = fopen(to_encode_filename, "r");
 	BeginWriting(encoded_filename);
-	PrintChars(count);
+//	PrintChars(count); /*Debugging purpose only */
 	for(i = 0; i < 256; i++)
-//		fprintf(f, "%d\n", count[i]);
+//		fprintf(f, "%d\n", count[i]); /* Debugging purpose only, will write integers to file instead of bytes represetning integers */
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
 	while((read_char = fgetc(to_encode))) {
@@ -290,14 +290,14 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 	for(i = 0; i < 256; i++) {
 		if(fread(&count[i], sizeof(int), 1, f) != 1)
         fprintf(stderr, "error writing to binary file\n");
-		else {
+/*		else {
 			if(count[i] != 0) {
 				if(i == '\n')
 					printf("char \'\\n\': %d times\n", count[i]);
 				else
 					printf("char \'%c\': %d times\n", i, count[i]);
 			}
-		}
+		}*/ /* Debugging purpose only, prints the "formula" for Huffman's tree read from encoded binary file, the "formula" is list of occurrences of each character */
 	} /* This loop reads first 1024 bytes represetning 256 integers that represent occurrence of each of 256 characters */
 	huffman_root = CreateHuffmanTree(count);
 	helper = huffman_root;
@@ -306,7 +306,7 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 		read_bit = ReadBit();
 		if(helper->left == NULL) {
 			fputc(helper->character, decoded);
-			printf("%c", helper->character);
+			printf("%c", helper->character); /* Debugging purpose only */
 			helper = huffman_root;
 		}
 		else if(helper->left != NULL) {
