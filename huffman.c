@@ -276,7 +276,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 		}
 	}
 	fclose(codes_file);
-	/* This bit is responsible for creating file "codes" that cointains huffman codes for each character in an input file */
+	/* This part is responsible for creating file "codes" that cointains huffman codes for each character in an input file */
 
 
 //	PrintChars(count); /*Debugging purpose only */
