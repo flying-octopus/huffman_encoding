@@ -289,7 +289,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 			break;
 		else {
 			for(i = 0; i < codes[(int)read_char].lenght; i++)
-				fprintf(f, "%d", (codes[(int)read_char].code & 1 << i) != 0);
+				fprintf(f, "%d", (codes[(int)read_char].code & 1 << i) != 0); /* Debugging purpose only, will display ASCII char 1 or 0 representing the bit instead of actual bit */
 //				WriteBit((codes[(int)read_char].code & 1 << i) != 0);
 
 		}
