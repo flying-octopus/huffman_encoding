@@ -278,7 +278,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 		if(count[j] != 0) {
 			//printf("wpisuje kod chara :%c\n", j);
 			if(j == 256)
-				fprintf(codes_file, "char: \'EOF\' code: \'");
+				fprintf(codes_file, " char: \'EOF\' code: \'");
 			else
 				fprintf(codes_file, " char : \'%c\' code: \'", j);
 			for(i = 0; i < codes[j].lenght; i++) {
@@ -346,8 +346,12 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 			if(helper->character == 256)
 				break; /* if character is == 256 that means it's EOF */
 			fputc(helper->character, decoded);
-			printf("%c", helper->character); /* Debugging purpose only */
+		//	printf("%c", helper->character); /* Debugging purpose only */
 			helper = huffman_root;
+			if(read_bit == 1)
+				helper = helper->right;
+			else if(read_bit == 0)
+				helper = helper->left;
 		}
 		else if(helper->left != NULL) {
 			if(read_bit == 1)
@@ -357,7 +361,6 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 		}
 	}
 	/* This while loop reads encoded file bit by bit and if bit is a 0 we move left on Huffman's tree and if it's 1 we move right until a node is missing left(right, any will work since this is Huffman's tree), then it means we are in a leaf and we output character to decoded file and reset helper to point a the root of the Huffman's tree again and we do that until we encounter end of binary file */
-	printf("\n");
 	fclose(decoded);
 	FinishReading();
 	exit(0);
