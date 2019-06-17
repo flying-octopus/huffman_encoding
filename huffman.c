@@ -151,8 +151,7 @@ Node* CreateHuffmanTree(int* count) {
 
 	Node *my_EOF;
 	my_EOF = CreateNode(count[256]);
-	my_EOF->character = -1;
-	my_EOF->priority = -1;
+	my_EOF->character = 256;
 	PrioQueueInsertNode(my_EOF, encode_prioqueue);
 	/* the 256th place in our array is reserved for EOF */
 
@@ -299,8 +298,9 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
 	while((read_char = fgetc(to_encode))) {
 		if(read_char == EOF) {
-			/*for(i = 0; i < codes[256].lenght; i++)
-				WriteBit((codes[256].code & 1 << i) != 0); */
+			for(i = 0; i < codes[256].lenght; i++)
+				fprintf(f, "%d", (codes[256].code & 1 << i) != 0);
+//				WriteBit((codes[256].code & 1 << i) != 0);
 			break;
 		}
 		else {
