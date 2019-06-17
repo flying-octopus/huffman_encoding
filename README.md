@@ -1,5 +1,5 @@
 # Huffman coding
-This is my project for second semester of computer science course.
+This program compresses text files, it works the best for files larger than 5kb as it writes instructions of size 1kb for encoding/decoding a file. Size reduction of a file is about 25% - 35%.
 
 ## Problem
 Write a program, which creates a Huffman's code for given text file (program needs to count instances of each character for the text), and then encodes the file. Write a program that decodes an encoded file.
