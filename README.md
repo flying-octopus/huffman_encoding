@@ -1,10 +1,7 @@
 # Huffman coding
-This is my project for second semester of computer science course.
+This program compresses text files, it works the best for files larger than 10kb as it writes instructions of size 1024 bytes for encoding/decoding a file. Size reduction of a file is about 25% - 35%.
 
-## Problem
-Write a program, which creates a Huffman's code for given text file (program needs to count instances of each character for the text), and then encodes the file. Write a program that decodes an encoded file.
-
-### Algorithm
+### Algorithm used
 The process begins with the leaf nodes containing the probabilities of the symbol they represent. Then, the process takes the two nodes with smallest probability, and creates a new internal node having these two nodes as children. The weight of the new node is set to the sum of the weight of the children. We then apply the process again, on the new internal node and on the remaining nodes (i.e., we exclude the two leaf nodes), we repeat this process until only one node remains, which is the root of the Huffman tree.
 
 The simplest construction algorithm uses a priority queue where the node with lowest probability is given highest priority:
