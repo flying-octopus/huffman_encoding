@@ -1,5 +1,5 @@
 # Huffman coding
-This program compresses text files, it works the best for files larger than 10kb as it writes instructions of size 1024 bytes for encoding/decoding a file. Size reduction of a file is about 25% - 35%.
+This program compresses text files, it works the best for files larger than 5kb as it writes instructions of size 1kb for encoding/decoding a file. Size reduction of a file is about 25% - 35%.
 
 ### Algorithm used
 The process begins with the leaf nodes containing the probabilities of the symbol they represent. Then, the process takes the two nodes with smallest probability, and creates a new internal node having these two nodes as children. The weight of the new node is set to the sum of the weight of the children. We then apply the process again, on the new internal node and on the remaining nodes (i.e., we exclude the two leaf nodes), we repeat this process until only one node remains, which is the root of the Huffman tree.
