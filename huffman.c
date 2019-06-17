@@ -299,21 +299,21 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	while((read_char = fgetc(to_encode))) {
 		if(read_char == EOF) {
 			for(i = 0; i < codes[256].lenght; i++)
-				fprintf(f, "%d", (codes[256].code & 1 << i) != 0);
-//				WriteBit((codes[256].code & 1 << i) != 0);
+//				fprintf(f, "%d", (codes[256].code & 1 << i) != 0);
+				WriteBit((codes[256].code & 1 << i) != 0);
 			break;
 		}
 		else {
 			for(i = 0; i < codes[(int)read_char].lenght; i++)
-				fprintf(f, "%d", (codes[(int)read_char].code & 1 << i) != 0); /* Debugging purpose only, will display ASCII char 1 or 0 representing the bit instead of actual bit */
-//				WriteBit((codes[(int)read_char].code & 1 << i) != 0);
+//				fprintf(f, "%d", (codes[(int)read_char].code & 1 << i) != 0); /* Debugging purpose only, will display ASCII char 1 or 0 representing the bit instead of actual bit */
+				WriteBit((codes[(int)read_char].code & 1 << i) != 0);
 
 		}
 		/* This loop handles writing single bits of each character to binary file, this is where we needed our code's lenght. Since we need to write them down backwards */
 	}
 	FinishWriting();
 	fclose(to_encode);
-	exit(1);
+	exit(0);
 } /* Encode takes a filename and makes a compressed version of that file called "encoded" */
 
 void Decode(char* to_decode_filename, char* decoded_filename) {
@@ -343,8 +343,8 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 	while(1) {
 		read_bit = ReadBit();
 		if(helper->left == NULL) {
-			if(helper->character == -1)
-				break; /* if character is == -1 that means it's EOF */
+			if(helper->character == 256)
+				break; /* if character is == 256 that means it's EOF */
 			fputc(helper->character, decoded);
 			printf("%c", helper->character); /* Debugging purpose only */
 			helper = huffman_root;
@@ -360,13 +360,13 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 	printf("\n");
 	fclose(decoded);
 	FinishReading();
-	exit(1);
+	exit(0);
 	/* Closing the files and exiting program after finished work */
 } /* Decode decodes compressed file with "to_decode_filename" name and outputs decoded characters to file "decoded_filename" */
 
 int main(int argc, char** argv) {
 	if(argc != 4) {
-		exit(0);
+		exit(1);
 	}
 	else if(strcmp("-c", argv[1]) == 0)
 		Encode(argv[2], argv[3]);
