@@ -10,7 +10,6 @@ FILE* f;
 unsigned char bufor, mask;
 char end; /* variable end is needed for reading bits in binary file */
 /*========================================*/
-FILE* codes_file;
 
 char CountChars(char* filename, int* count) {
 	FILE* file;
@@ -262,7 +261,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	int count[257] = {0}; /* array of occourance of each character, it has 256 spaces since there are 256 characters (257 spaces since last one is reserved for EOF -- not a character */
 	Code codes[257]; /* array of binary codes for each character */
 	Node* huffman_root; /* pointer to the root of Huffman's tree */
-	int i, j;
+	int i;
 	char read_char;
 	FILE* to_encode;
 	CountChars(to_encode_filename, count);
@@ -273,25 +272,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	to_encode = fopen(to_encode_filename, "r");
 	BeginWriting(encoded_filename);
 
-	codes_file = fopen("codes", "wb+");
-	for(j = 0; j < 257; j++) {
-		if(count[j] != 0) {
-			//printf("wpisuje kod chara :%c\n", j);
-			if(j == 256)
-				fprintf(codes_file, " char: \'EOF\' code: \'");
-			else
-				fprintf(codes_file, " char : \'%c\' code: \'", j);
-			for(i = 0; i < codes[j].lenght; i++) {
-				fprintf(codes_file, "%d", (codes[j].code & 1 << i) != 0);
-			}
-			fprintf(codes_file, "\'\n");
-		}
-	}
-	fclose(codes_file);
-	/* This part is responsible for creating file "codes" that cointains huffman codes for each character in an input file */
-
-
-//	PrintChars(count); /*Debugging purpose only */
+	//	PrintChars(count); /*Debugging purpose only */
 	for(i = 0; i < 256; i++)
 		//fprintf(codes_file, "%d ", count[i]); /* Debugging purpose only, will write integers to file instead of bytes represetning integers */
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
