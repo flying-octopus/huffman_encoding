@@ -125,7 +125,7 @@ Node* CreateNode(int count) {
 	newnode = malloc(sizeof(Node));
 	newnode->count = count;
 	newnode->priority = (-1) * count;
-	newnode->character = (char)NULL;
+	newnode->character = 0;
 	newnode->left = NULL;
 	newnode->right = NULL;
 	return newnode;
@@ -146,7 +146,16 @@ Node* CreateHuffmanTree(int* count) {
 	int i;
 	PrioQueue* encode_prioqueue;
 	Node *leaf0, *leaf1, *leaf2, *node;
+
 	encode_prioqueue = InitPrioQueue();
+
+	Node *my_EOF;
+	my_EOF = CreateNode(count[256]);
+	my_EOF->character = -1;
+	my_EOF->priority = -1;
+	PrioQueueInsertNode(my_EOF, encode_prioqueue);
+	/* the 256th place in our array is reserved for EOF */
+
 	/* Step 1 of algorithm */
 	for(i = 0; i < 256; i++)
 		if(count[i] > 0) {
@@ -178,8 +187,8 @@ Node* CreateHuffmanTree(int* count) {
 
 void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* binary_codes) {
 	if(vertex->left == NULL) {
-		binary_codes[(int)vertex->character].code = binary_code;
-		binary_codes[(int)vertex->character].lenght = level;
+		binary_codes[vertex->character].code = binary_code;
+		binary_codes[vertex->character].lenght = level;
 	}
 	else {
 		binary_code &= ~(1 << level);
@@ -251,13 +260,14 @@ void FinishReading(void) {
 /*========================================*/
 
 void Encode(char* to_encode_filename, char* encoded_filename) {
-	int count[256] = {0}; /* array of occourance of each character, it has 256 spaces since there are 256 characters */
-	Code codes[256]; /* array of binary codes for each character */
+	int count[257] = {0}; /* array of occourance of each character, it has 256 spaces since there are 256 characters (257 spaces since last one is reserved for EOF -- not a character */
+	Code codes[257]; /* array of binary codes for each character */
 	Node* huffman_root; /* pointer to the root of Huffman's tree */
 	int i, j;
 	char read_char;
 	FILE* to_encode;
 	CountChars(to_encode_filename, count);
+	count[256] = 1; /* 1 occurence of EOF */
 	huffman_root = CreateHuffmanTree(count);
 	FindBinaryCodes(huffman_root, 0,(unsigned int)NULL, codes);
 
@@ -265,12 +275,15 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	BeginWriting(encoded_filename);
 
 	codes_file = fopen("codes", "wb+");
-	for(j = 0; j < 256; j++) {
+	for(j = 0; j < 257; j++) {
 		if(count[j] != 0) {
 			//printf("wpisuje kod chara :%c\n", j);
-			fprintf(codes_file, " char : \'%c\' code: \'", j);
+			if(j == 256)
+				fprintf(codes_file, "char: \'EOF\' code: \'");
+			else
+				fprintf(codes_file, " char : \'%c\' code: \'", j);
 			for(i = 0; i < codes[j].lenght; i++) {
-				fprintf(codes_file, "%d", (codes[j].code & 1 << 1) != 0);
+				fprintf(codes_file, "%d", (codes[j].code & 1 << i) != 0);
 			}
 			fprintf(codes_file, "\'\n");
 		}
@@ -285,8 +298,11 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
 	while((read_char = fgetc(to_encode))) {
-		if(read_char == EOF)
+		if(read_char == EOF) {
+			/*for(i = 0; i < codes[256].lenght; i++)
+				WriteBit((codes[256].code & 1 << i) != 0); */
 			break;
+		}
 		else {
 			for(i = 0; i < codes[(int)read_char].lenght; i++)
 				fprintf(f, "%d", (codes[(int)read_char].code & 1 << i) != 0); /* Debugging purpose only, will display ASCII char 1 or 0 representing the bit instead of actual bit */
@@ -301,7 +317,7 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 } /* Encode takes a filename and makes a compressed version of that file called "encoded" */
 
 void Decode(char* to_decode_filename, char* decoded_filename) {
-	int count[256] = {0}; /* similarly to Encode */
+	int count[257] = {0}; /* similarly to Encode */
 	Node *huffman_root, *helper; /* similarly to Encode helper is here just for a while loop since after we find leaf of Huffman's tree we need to go back to the root and repeat the process */
 	int i;
 	char read_bit;
@@ -320,12 +336,15 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 			}
 		}*/ /* Debugging purpose only, prints the "formula" for Huffman's tree read from encoded binary file, the "formula" is list of occurrences of each character */
 	} /* This loop reads first 1024 bytes represetning 256 integers that represent occurrence of each of 256 characters */
+	count[256] = 1; /*1 occurence of EOF */
 	huffman_root = CreateHuffmanTree(count);
 	helper = huffman_root;
 	decoded = fopen(decoded_filename, "wb+");
-	while(end != 1) {
+	while(1) {
 		read_bit = ReadBit();
 		if(helper->left == NULL) {
+			if(helper->character == -1)
+				break; /* if character is == -1 that means it's EOF */
 			fputc(helper->character, decoded);
 			printf("%c", helper->character); /* Debugging purpose only */
 			helper = huffman_root;

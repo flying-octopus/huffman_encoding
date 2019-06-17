@@ -1,7 +1,7 @@
 typedef struct Node {
 	int priority;
 	int count;
-	char character;
+	int character;
 	struct Node *left, *right;
 } Node;
 
