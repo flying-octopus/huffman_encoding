@@ -257,8 +257,28 @@ void FinishReading(void) {
 /* End of functions concnerning bits */
 /*========================================*/
 
+void PrintCodesToFile(int* count, Code* codes) {
+	FILE* codes_file;
+	int j, i;
+	codes_file = fopen("codes", "wb+");
+	for(j = 0; j < 257; j++) {
+		if(count[j] != 0) {
+			if(j == 256)
+				fprintf(codes_file, " char : \'EOF\' code: \'");
+			else
+				fprintf(codes_file, " char : \'%c\' code: \'", j);
+			for(i = 0; i < codes[j].length; i++) {
+				fprintf(codes_file, "%d", (codes[j].code & 1 << i) != 0);
+			}
+			fprintf(codes_file, "\'\n");
+		}
+	}
+	fclose(codes_file);
+} /* Function PrintCodes is purely for debugging, while encoding file, it creates a text file "codes" with a binary code(Huffman's treebinary code) in ASII form for each character ocurring in input file */
+
+
 void Encode(char* to_encode_filename, char* encoded_filename) {
-	int count[257] = {0}; /* array of occourance of each character, it has 256 spaces since there are 256 characters (257 spaces since last one is reserved for EOF -- not a character */
+	int count[257] = {0}; /* array of ocurrence of each character, it has 256 spaces since there are 256 characters (257 spaces since last one is reserved for EOF -- not a character */
 	Code codes[257]; /* array of binary codes for each character */
 	Node* huffman_root; /* pointer to the root of Huffman's tree */
 	int i;
@@ -272,11 +292,11 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	to_encode = fopen(to_encode_filename, "r");
 	BeginWriting(encoded_filename);
 
-	//	PrintChars(count); /*Debugging purpose only */
 	for(i = 0; i < 256; i++)
 		//fprintf(codes_file, "%d ", count[i]); /* Debugging purpose only, will write integers to file instead of bytes represetning integers */
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
+
 	while((read_char = fgetc(to_encode))) {
 		if(read_char == EOF) {
 			for(i = 0; i < codes[256].length; i++)
@@ -290,12 +310,13 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 				WriteBit((codes[(int)read_char].code & 1 << i) != 0);
 
 		}
-		/* This loop handles writing single bits of each character to binary file, this is where we needed our code's length. Since we need to write them down backwards */
 	}
+/* This loop handles writing single bits of each character to binary file, this is where we needed our code's length. Since we need to write them down backwards */
+
 	FinishWriting();
 	fclose(to_encode);
 	exit(0);
-} /* Encode takes a filename and makes a compressed version of that file called "encoded" */
+} /* Encode takes source file "to_encode_filename", and compresses it, the output file is called "encoded_filename" */
 
 void Decode(char* to_decode_filename, char* decoded_filename) {
 	int count[257] = {0}; /* similarly to Encode */
@@ -305,6 +326,7 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 	FILE* decoded;
 
 	BeginReading(to_decode_filename);
+
 	for(i = 0; i < 256; i++) {
 		if(fread(&count[i], sizeof(int), 1, f) != 1)
         fprintf(stderr, "error writing to binary file\n");
@@ -318,9 +340,11 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 		}*/ /* Debugging purpose only, prints the "formula" for Huffman's tree read from encoded binary file, the "formula" is list of occurrences of each character */
 	} /* This loop reads first 1024 bytes represetning 256 integers that represent occurrence of each of 256 characters */
 	count[256] = 1; /*1 occurence of EOF */
+
 	huffman_root = CreateHuffmanTree(count);
 	helper = huffman_root;
 	decoded = fopen(decoded_filename, "wb+");
+
 	while(1) {
 		read_bit = ReadBit();
 		if(helper->left == NULL) {
@@ -342,6 +366,7 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 		}
 	}
 	/* This while loop reads encoded file bit by bit and if bit is a 0 we move left on Huffman's tree and if it's 1 we move right until a node is missing left(right, any will work since this is Huffman's tree), then it means we are in a leaf and we output character to decoded file and reset helper to point a the root of the Huffman's tree again and we do that until we encounter end of binary file */
+
 	fclose(decoded);
 	FinishReading();
 	exit(0);
