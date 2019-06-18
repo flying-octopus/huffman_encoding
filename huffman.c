@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "huffman.h"
-#define MAX_CAPACITY 2000 /* Max capacity of priority queue used to build a Huffman's tre */
+#define MAX_CAPACITY 2000 /* Max capacity of priority queue used to build a Huffman's tree */
 /*========================================*/
 /* Following global variables are used for reading/writing bits */
 /*========================================*/
@@ -181,12 +181,12 @@ Node* CreateHuffmanTree(int* count) {
 	else
 		printf("Something's wrong...\n");*/ /* Debugging purpose only! Checks if created Huffman's tree is valid */
 	return HuffmanTreeRoot;
-} /* HuffmanEncode takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
+} /* CreateHuffmanTree takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
 
 void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* binary_codes) {
 	if(vertex->left == NULL) {
 		binary_codes[vertex->character].code = binary_code;
-		binary_codes[vertex->character].lenght = level;
+		binary_codes[vertex->character].length = level;
 	}
 	else {
 		binary_code &= ~(1 << level);
@@ -194,7 +194,7 @@ void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* bi
 		binary_code |= 1 << level;
 		FindBinaryCodes(vertex->right, level + 1, binary_code, binary_codes);
 	}
-} /* FindBinaryCodes searches through entire Huffman's tree recursivly starting by it's root given as an argument. It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character as well as the lenght of the code (lengt is needed since codes in this method ar written backwards and when outputted to a file need to be written in a backward direction -- we need lenght of a code for that). First induction of this function should be with level == 0, as this level is a level of a binary tree and starting with a root level is 0 */
+} /* FindBinaryCodes searches through entire Huffman's tree recursivly starting by it's root given as an argument. It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character as well as the length of the code (lengt is needed since codes in this method ar written backwards and when outputted to a file need to be written in a backward direction -- we need length of a code for that). First induction of this function should be with level == 0, as this level is a level of a binary tree and starting with a root level is 0 */
 
 /*========================================*/
 /* Functions below deal with writing each bits */
@@ -279,18 +279,18 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
 	while((read_char = fgetc(to_encode))) {
 		if(read_char == EOF) {
-			for(i = 0; i < codes[256].lenght; i++)
+			for(i = 0; i < codes[256].length; i++)
 //				fprintf(f, "%d", (codes[256].code & 1 << i) != 0);
 				WriteBit((codes[256].code & 1 << i) != 0);
 			break;
 		}
 		else {
-			for(i = 0; i < codes[(int)read_char].lenght; i++)
+			for(i = 0; i < codes[(int)read_char].length; i++)
 //				fprintf(f, "%d", (codes[(int)read_char].code & 1 << i) != 0); /* Debugging purpose only, will display ASCII char 1 or 0 representing the bit instead of actual bit */
 				WriteBit((codes[(int)read_char].code & 1 << i) != 0);
 
 		}
-		/* This loop handles writing single bits of each character to binary file, this is where we needed our code's lenght. Since we need to write them down backwards */
+		/* This loop handles writing single bits of each character to binary file, this is where we needed our code's length. Since we need to write them down backwards */
 	}
 	FinishWriting();
 	fclose(to_encode);

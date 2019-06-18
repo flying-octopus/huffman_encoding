@@ -11,7 +11,7 @@ typedef struct {
 } PrioQueue;
 
 typedef struct {
-	char lenght;
+	char length;
 	unsigned int code;
 } Code;
 
