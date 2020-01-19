@@ -18,7 +18,7 @@ The simplest construction algorithm uses a priority queue where the node with lo
 
 ### Manual
 `-c` : Program will compress file given as a second argument. Compressed file's name is going to be a third argument, example:
-`./huffman -c test.txt test` will compress file `test.txt`, a compressed file will be called `test`.
+`./huffman -c test.txt test` will compress file `test.txt` to output file `test`.
 
 `-d` : Program will decompress file given as a second argument. Decompressed file's name is going to be a third argument, example:
-`./huffman -d test test.txt` will decompress file `test`, a decompressed fille will be called `test.txt`.
+`./huffman -d test test.txt` will decompress file `test` to output file `test.txt`.
