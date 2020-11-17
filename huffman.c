@@ -113,7 +113,7 @@ Node* PrioQueueRemoveNode(PrioQueue* prioqueue) {
 		DownHeap(0, prioqueue);
 		return removed_node;
 	}
-} /* Removes node from PriorityQueue and also returns pointer to that node */
+} /* Removes node from PriorityQueue given in an argument and also returns pointer to that node */
 
 /*========================================*/
 /* End of Priority Queue functions */
@@ -128,7 +128,7 @@ Node* CreateNode(int count) {
 	newnode->left = NULL;
 	newnode->right = NULL;
 	return newnode;
-} /* CreateNode does all the assigning to create a node, all it needs is number of occurances  -- a vertex of Huffman's tree */
+} /* CreateNode does all the assigning to create a node, all it needs is number of occurances of a character -- a vertex of Huffman's tree */
 
 char CheckCount(int* count, Node* HuffmanTreeRoot) {
 	int i, all;
@@ -181,7 +181,7 @@ Node* CreateHuffmanTree(int* count) {
 	else
 		printf("Something's wrong...\n");*/ /* Debugging purpose only! Checks if created Huffman's tree is valid */
 	return HuffmanTreeRoot;
-} /* CreateHuffmanTree takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of that tree */
+} /* CreateHuffmanTree takes a file and creates a Huffman's Tree for characters in the given file, also returning pointer to root of created tree */
 
 void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* binary_codes) {
 	if(vertex->left == NULL) {
@@ -194,7 +194,11 @@ void FindBinaryCodes(Node* vertex, int level, unsigned int binary_code, Code* bi
 		binary_code |= 1 << level;
 		FindBinaryCodes(vertex->right, level + 1, binary_code, binary_codes);
 	}
-} /* FindBinaryCodes searches through entire Huffman's tree recursivly starting by it's root given as an argument. It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character as well as the length of the code (lengt is needed since codes in this method ar written backwards and when outputted to a file need to be written in a backward direction -- we need length of a code for that). First induction of this function should be with level == 0, as this level is a level of a binary tree and starting with a root level is 0 */
+} /* FindBinaryCodes searches through entire Huffman's tree recursively starting at it's root given as an argument. 
+    * It fills given array of type Code (that has place for each of 256 characters in it) with Huffman's codes for each character
+    * as well as the length of the code (lengt is needed since codes in this method ar written backwards and when outputted to
+    * a file need to be written in a backward direction -- we need length of a code for that). 
+    * First induction of this function should be with level == 0, as this level is of a root */
 
 /*========================================*/
 /* Functions below deal with writing each bits */
@@ -274,11 +278,12 @@ void PrintCodesToFile(int* count, Code* codes) {
 		}
 	}
 	fclose(codes_file);
-} /* Function PrintCodes is purely for debugging, while encoding file, it creates a text file "codes" with a binary code(Huffman's treebinary code) in ASII form for each character ocurring in input file */
+} /* Function PrintCodes is purely for debugging, while encoding file,
+    * it creates a text file "codes" with a binary code(Huffman's treebinary code) in ASII form for each character ocurring in input file */
 
 
 void Encode(char* to_encode_filename, char* encoded_filename) {
-	int count[257] = {0}; /* array of ocurrence of each character, it has 256 spaces since there are 256 characters (257 spaces since last one is reserved for EOF -- not a character */
+	int count[257] = {0}; /* array of occurrence of each character, it has 256 spaces since there are 256 characters (257 spaces since last one is reserved for EOF -- not a character */
 	Code codes[257]; /* array of binary codes for each character */
 	Node* huffman_root; /* pointer to the root of Huffman's tree */
 	int i;
@@ -295,7 +300,8 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 	for(i = 0; i < 256; i++)
 		//fprintf(codes_file, "%d ", count[i]); /* Debugging purpose only, will write integers to file instead of bytes represetning integers */
 		fwrite((const void*) & count[i], sizeof(int), 1, f);
-	/* This loop handles writing wrting occurances of each character from source file to compressed file it takes 4 bytes * 256 space in the beggining of compressed file (4 bytes since int's size is 4 bytes) */
+	/* This loop handles writing wrting occurances of each character from source file to compressed file,
+	  * it takes 4 bytes * 256 space in the begining of compressed file (4 bytes since int's size is 4 bytes) */
 
 	while((read_char = fgetc(to_encode))) {
 		if(read_char == EOF) {
@@ -311,12 +317,12 @@ void Encode(char* to_encode_filename, char* encoded_filename) {
 
 		}
 	}
-/* This loop handles writing single bits of each character to binary file, this is where we needed our code's length. Since we need to write them down backwards */
+/* This loop handles writing single bits of each character to binary file, this is where we needed our code's length since we need to write them down backwards */
 
 	FinishWriting();
 	fclose(to_encode);
 	exit(0);
-} /* Encode takes source file "to_encode_filename", and compresses it, the output file is called "encoded_filename" */
+} /* Encode takes source file "to_encode_filename", and compresses it, the output file's name is "encoded_filename" */
 
 void Decode(char* to_decode_filename, char* decoded_filename) {
 	int count[257] = {0}; /* similarly to Encode */
@@ -337,7 +343,8 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 				else
 					printf("char \'%c\': %d times\n", i, count[i]);
 			}
-		}*/ /* Debugging purpose only, prints the "formula" for Huffman's tree read from encoded binary file, the "formula" is list of occurrences of each character */
+		}*/ /* Debugging purpose only, prints the "formula" for Huffman's tree read from encoded binary file, 
+		       * the "formula" is list of occurrences of each character */
 	} /* This loop reads first 1024 bytes represetning 256 integers that represent occurrence of each of 256 characters */
 	count[256] = 1; /*1 occurence of EOF */
 
@@ -365,7 +372,11 @@ void Decode(char* to_decode_filename, char* decoded_filename) {
 				helper = helper->left;
 		}
 	}
-	/* This while loop reads encoded file bit by bit and if bit is a 0 we move left on Huffman's tree and if it's 1 we move right until a node is missing left(right, any will work since this is Huffman's tree), then it means we are in a leaf and we output character to decoded file and reset helper to point a the root of the Huffman's tree again and we do that until we encounter end of binary file */
+	/* This while loop reads encoded file bit by bit. 
+	 * If bit is a 0 we move left on Huffman's tree and if it's 1 we move right until a node is missing left
+	 * (or right, any will work since this is Huffman's tree), 
+	 * then it means we are in a leaf and we output character to decoded file and reset helper
+	 * to point a the root of the Huffman's tree again and we do that until we encounter end of binary file */
 
 	fclose(decoded);
 	FinishReading();
