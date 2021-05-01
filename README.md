@@ -16,6 +16,9 @@ The simplest construction algorithm uses a priority queue where the node with lo
 ### Installation
 `make` while in program's directory.
 
+### Limitations
+Only ASCII support, no UTF-8
+
 ### Manual
 `-c` : Program will compress file given as a second argument. Compressed file's name is going to be a third argument, example:
 `./huffman -c test.txt test` will compress file `test.txt` to output file `test`.
